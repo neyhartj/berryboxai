@@ -19,4 +19,8 @@ dependencies:
     - pandas
     - scikit-learn
     - depthai
+    - shiny>=0.10.0
+    - shinywidgets
+    - pillow
+    - faicons
 

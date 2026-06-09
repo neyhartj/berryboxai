@@ -59,9 +59,10 @@ def get_model():
     task = "segment" if module_name == "berry-seg" else "detect"
     
     # Pre-check for OpenVINO conversion to warn the user
+    # OpenVINO should be used for Windows or macOS with x86_64 architecture, but we check at runtime to be safe
     import platform
-    is_ov_eligible = (platform.system() == "Windows") or \
-                     (platform.system() == "Darwin" and platform.machine() == "x86_64")
+    # Is the system Windows or macOS with x86_64 architecture?
+    is_ov_eligible = (platform.system() == "Windows") or (platform.system() == "Darwin" and platform.machine() == "x86_64")
     
     # Using / with Path object is now safe
     ov_path = WEIGHTS_DIR / f"berrybox_{module_name}_openvino_model"

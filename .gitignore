@@ -8,3 +8,6 @@ build/
 testing/*
 deprecated/*
 *.DS_Store
+.Rproj.user
+.positai
+berryboxai.Rproj

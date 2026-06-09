@@ -140,9 +140,13 @@ def setup_nikon_camera(ssh, camera_name: str = "Nikon DSC D7500", sleeps = 2):
     time.sleep(0.5)
     
     configs = [
-        "iso=100",
+        # "iso=100", # 100 or 200 (100 originally)
+        # "whitebalance=7",
+        # "/main/capturesettings/f-number=7.1",
+        # "/main/capturesettings/shutterspeed=25"
+        "iso=200", # 100 or 200 (100 originally)
         "whitebalance=7",
-        "/main/capturesettings/f-number=7.1",
+        "/main/capturesettings/f-number=5",
         "/main/capturesettings/shutterspeed=25"
     ]
     
