@@ -12,8 +12,10 @@ scp
 pandas
 colour-science==0.4.4
 plotly
+tqdm
 # Shiny Specifics
 shiny>=0.10.0
 shinywidgets
 pillow
 faicons
+streamlit

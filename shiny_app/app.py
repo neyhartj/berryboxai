@@ -1,5 +1,27 @@
-import os
+import ssl
 import sys
+
+# FIX: Windows OpenSSL bug [ASN1: NOT_ENOUGH_DATA] caused by malformed smartcard/VPN certificates
+if sys.platform == "win32":
+    def safe_load_windows_store_certs(self, storename, purpose):
+        import warnings
+        try:
+            for cert, encoding, trust in ssl.enum_certificates(storename):
+                if encoding == "x509_asn":
+                    if trust is True or purpose.oid in trust:
+                        try:
+                            # Load certificates one-by-one so a single corrupt 
+                            # certificate doesn't crash the entire network stack
+                            self.load_verify_locations(cadata=cert)
+                        except Exception:
+                            pass  # Quietly bypass the malformed certificate
+        except PermissionError:
+            warnings.warn("Unable to enumerate Windows certificate store")
+
+    # Overwrite the standard library's broken batch-loading method
+    ssl.SSLContext._load_windows_store_certs = safe_load_windows_store_certs
+
+import os
 import cv2
 import glob
 import paramiko
@@ -10,6 +32,7 @@ from datetime import datetime
 import pkg_resources
 import signal
 import time
+
 
 # Shiny Imports
 from shiny import reactive, render, ui
