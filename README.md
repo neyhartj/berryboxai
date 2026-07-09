@@ -1,6 +1,6 @@
 # berryboxai
 
-## Setup
+## Installation
 
 1. Install Conda (if not already installed):
 
@@ -31,11 +31,11 @@
 
         + Run the following command:
             ```
-            git clone https://github.com/neyhartj/berryboxai.git
+            git clone https://github.com/NeyhartLab/berryboxai.git
             ```
 
     + Option 2: Download the repository as a .zip file
-        + [Download the .zip file](https://github.com/neyhartj/berryboxai/archive/refs/heads/main.zip)
+        + [Download the .zip file](https://github.com/NeyhartLab/berryboxai/archive/refs/heads/main.zip)
         + Move the .zip file to a suitable location, like the Documents folder.
         + Unzip the .zip file
         + Open up Powershell or Terminal and navigate to the Documents folder:
@@ -76,7 +76,7 @@
     ```
 
 
-## Using `berryboxai`
+## Usage
 
 ### Follow the below instructions for routine use.
 
@@ -120,61 +120,11 @@ The `--input` option is used to control whether you want interactive mode or bat
 In batch mode, the `--preview` option is disabled.
 
 
-## Running the Streamlit App
 
-## Installation
+### Shiny App
 
-Add Streamlit and Plotly to your existing environment:
+The command line tools have been wrapped into a Shiny App. To launch it, after loading the conda environment, run
 
-```bash
-pip install streamlit plotly
-# or
-conda install -c conda-forge streamlit plotly
-```
+`berryboxaiApp`
 
-## Running the App
-
-```bash
-streamlit run app.py
-```
-
-The app opens at http://localhost:8501
-
-## Pages
-
-### 📷 Interactive Mode
-- SSH connect/disconnect to Raspberry Pi with status badge
-- One-click Nikon D7500 camera check (gphoto2 auto-detect)
-- Barcode scanner input — keyboard wedge scanners work natively
-- Capture → SCP transfer → YOLO inference → feature extraction in one click
-- Annotated image displayed inline with live metrics after each sample
-- Session CSV grows continuously; download at any time
-
-### 📁 Batch Mode
-- Folder path input; auto-discovers images by extension
-- Progress bar with per-image status
-- Annotated thumbnail grid
-- Full cm-unit conversion for berry-seg at the end
-- Download results CSV when complete
-
-### 📊 Results Viewer
-- Scans output directory for all session folders automatically
-- Summary metrics panel
-- Data Table tab with column picker
-- Distributions tab (Plotly): bar charts, histograms, scatter, color channels
-- Annotated Images tab with filename filter and column slider
-- Export tab: full CSV, per-image summary, or reduced feature set
-
-## Sidebar Settings
-
-Module, confidence, IoU, image size, color correction, QR/OCR, custom model path, RPi credentials, output directory — all configurable and shared across pages.
-
-## Notes
-
-- Model weights must be at `berryboxai/data/weights/` or set via sidebar
-- OpenVINO conversion is automatic on Windows / Intel Mac
-- All feature extraction reuses existing `berryboxai.functions` module
-- `plotly` is only required for the charts tab
-
-
-
+from the command line.
