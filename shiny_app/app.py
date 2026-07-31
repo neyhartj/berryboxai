@@ -131,13 +131,13 @@ app_ui = ui.page_navbar(
             ui.h4("1. Original Field Book"),
             ui.input_file("analysis_csv_file", "Upload Original Field Book (.csv)", accept=[".csv"]),
             
-            ui.h4("2. Session Folders to Scan"),
-            ui.p("Select the folder(s) containing the raw TIFF images. You can select multiple folders if your trial spans several restarts.", style="color: #6c757d; font-size: 0.9em;"),
+            ui.h4("2. Parent Folder Containing Sessions"),
+            ui.p("Place all of the raw image session folders you want to analyze into a single main folder. Select that main folder below.", style="color: #6c757d; font-size: 0.9em;"),
             ui.row(
-                ui.column(6, ui.input_action_button("add_session_btn", "➕ Add Session Folder")),
-                ui.column(6, ui.input_action_button("clear_sessions_btn", "❌ Clear Folders", class_="btn-warning"))
+                ui.column(9, ui.input_text("analysis_parent_folder", "", value="", width="100%")),
+                ui.column(3, ui.input_action_button("browse_parent_btn", "📁 Browse...", class_="btn-secondary w-100"))
             ),
-            ui.output_text_verbatim("session_folders_list"),
+            ui.br(),
             
             ui.h4("3. Extraction Settings"),
             ui.input_numeric("analysis_num_replicates", "Target Images per Plot (n_i)", value=10, min=1),
@@ -187,11 +187,6 @@ def server(input, output, session):
     completed_plots_count = reactive.Value(0)
     capture_status_msg = reactive.Value("Ready.")
     capture_trigger = reactive.Value(0)
-    
-    # ---------------------------------------------------------
-    # ANALYZE APP VARIABLES
-    # ---------------------------------------------------------
-    analysis_sessions = reactive.Value([])
     
     # =========================================================
     # CAPTURE APP LOGIC
@@ -478,29 +473,11 @@ def server(input, output, session):
     # ANALYZE APP LOGIC
     # =========================================================
     @reactive.Effect
-    @reactive.event(input.add_session_btn)
-    def add_session_folder():
-        folder = get_directory_path("Select Raw Image Session Folder")
+    @reactive.event(input.browse_parent_btn)
+    def browse_parent_folder():
+        folder = get_directory_path("Select Parent Folder Containing Sessions")
         if folder:
-            # Use list() to create a copy so Shiny detects the state change!
-            current = list(analysis_sessions.get())
-            norm_folder = os.path.normpath(folder)
-            if norm_folder not in current:
-                current.append(norm_folder)
-                analysis_sessions.set(current)
-
-    @reactive.Effect
-    @reactive.event(input.clear_sessions_btn)
-    def clear_sessions():
-        analysis_sessions.set([])
-        
-    @output
-    @render.text
-    def session_folders_list():
-        folders = analysis_sessions.get()
-        if not folders:
-            return "No folders added yet."
-        return "\n".join(folders)
+            ui.update_text("analysis_parent_folder", value=os.path.normpath(folder))
 
     @reactive.Effect
     @reactive.event(input.analysis_browse_dest_btn)
@@ -518,9 +495,9 @@ def server(input, output, session):
         if not file_infos:
             return "Error: Please upload an Original Field Book CSV."
             
-        sessions = analysis_sessions.get()
-        if not sessions:
-            return "Error: Please add at least one session folder containing raw images."
+        parent_dir = input.analysis_parent_folder()
+        if not parent_dir or not os.path.exists(parent_dir):
+            return "Error: Please select a valid parent folder containing your session folders."
             
         n_i = input.analysis_num_replicates()
         dest_base = input.analysis_dest_folder()
@@ -560,17 +537,16 @@ def server(input, output, session):
             pattern = re.compile(rf"^{uid_esc}_(\d{{8}}_\d{{6}})_image_\d+\.tiff$")
             matched_files = {} 
             
-            # Scan all provided session directories and subdirectories
-            for session_dir in sessions:
-                for root, _, files in os.walk(session_dir):
-                    for file in files:
-                        match = pattern.match(file)
-                        if match:
-                            ts = match.group(1) # Extract the timestamp grouping
-                            full_path = os.path.join(root, file)
-                            if ts not in matched_files:
-                                matched_files[ts] = []
-                            matched_files[ts].append(full_path)
+            # Scan the parent directory and all subdirectories automatically
+            for root, _, files in os.walk(parent_dir):
+                for file in files:
+                    match = pattern.match(file)
+                    if match:
+                        ts = match.group(1) # Extract the timestamp grouping
+                        full_path = os.path.join(root, file)
+                        if ts not in matched_files:
+                            matched_files[ts] = []
+                        matched_files[ts].append(full_path)
                             
             if not matched_files:
                 plots_missing += 1
